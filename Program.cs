@@ -36,6 +36,7 @@
         public string Name { get; set; }
         public ClassName PlayerClass { get; set; }
         public int Gold { get; set; }
+        public int Health { get; set;}
 
         public float TotalAtk => basicAtk + BonusAtk;
         private float basicAtk;
@@ -43,10 +44,6 @@
         public float TotalDef => basicDef + BonusDef;
         private float basicDef;
         public float BonusDef { get; set; }
-        public float TotalHealth => basicHealth + BonusHealth;
-        private float basicHealth;
-        public float BonusHealth { get; set; }
-
 
         public List<Item> Inventory { get; private set;} 
 
@@ -56,14 +53,13 @@
             Name = "Chad";
             PlayerClass = ClassName.Warrior;
             Gold = 1500;
+            Health = 50;
 
             basicAtk = 10.0f;
             basicDef = 5.0f;
-            basicHealth = 100.0f;
 
             BonusAtk = 0.0f;
             BonusDef = 0.0f;
-            BonusHealth = 0.0f;
 
             Inventory = [];
         }
@@ -128,7 +124,7 @@
 
     static void CallStartWindow()
     {
-        int[] idx = [1, 2, 3];
+        int[] idx = [1, 2, 3, 5];
         string input;
 
         Console.Clear();
@@ -137,6 +133,7 @@
         Console.WriteLine("1. 상태보기");
         Console.WriteLine("2. 인벤토리");
         Console.WriteLine("3. 상점");
+        Console.WriteLine("5. 휴식하기");
         Console.Write("\n원하시는 행동을 입력해주세요.\n>> ");
 
         do
@@ -155,6 +152,9 @@
                 break;
             case 3:
                 CallShopWindow();
+                break;
+            case 5:
+                CallRestWindow();
                 break;
             default:
                 CallStartWindow();
@@ -340,6 +340,51 @@
         }
     }
 
+    static void CallRestWindow()
+    {
+        int[] idx = [0, 1];
+        string input;
+
+        Console.Clear();
+        Console.WriteLine("[휴식하기]");
+        Console.WriteLine($"500 G 를 내면 체력이 100까지 회복됩니다.");
+        Console.WriteLine($"현재 체력 : {player.Health}  |  보유 골드 : {player.Gold} G\n");
+        Console.WriteLine("1. 휴식하기");
+        Console.WriteLine("0. 나가기");
+        Console.Write("\n원하시는 행동을 입력해주세요.");
+
+        while (true)
+        {
+            Console.Write("\n>> ");
+            input = Console.ReadLine();
+
+            if (!IsInputValid(input, idx)) { continue; }
+            int select = int.Parse(input);
+            if (select == 0)
+            {
+                CallStartWindow();
+                return;
+            }
+
+            if (player.Health >= 100) { Console.Write("체력이 충분합니다. 휴식을 취할 필요가 없을 것 같습니다."); }
+            else if (player.Gold < 500) { Console.Write("Gold 가 부족합니다."); }
+            else
+            {
+                Console.Clear();
+                player.Gold -= 500;
+                player.Health = 100;
+
+                Console.WriteLine("충분한 휴식을 취한것 같습니다.");
+                Console.WriteLine($"현재 체력 : {player.Health}  |  보유 골드 : {player.Gold} G");
+                Console.WriteLine("\n아무 키나 누르면 출발합니다.");
+                Console.ReadKey();
+                CallRestWindow();
+                return;
+            }
+        }
+    }
+    
+    
     static bool IsInputValid(string Input, int[] idx)
     {
         if (!int.TryParse(Input, out int value))
@@ -364,12 +409,11 @@
         Console.WriteLine($"Lv. {player.Level}");
         Console.WriteLine($"{player.Name} ( {player.PlayerClass} )");
         Console.Write($"공격력 : {player.TotalAtk}");
-        Console.WriteLine(player.BonusAtk == 0 ? "" : $"(+{player.BonusAtk})");
+        Console.WriteLine(player.BonusAtk == 0 ? "" : $" (+{player.BonusAtk})");
         Console.Write($"방어력 : {player.TotalDef}");
-        Console.WriteLine(player.BonusDef == 0 ? "" : $"(+{player.BonusDef})");
+        Console.WriteLine(player.BonusDef == 0 ? "" : $" (+{player.BonusDef})");
         Console.WriteLine("");
-        Console.Write($"체 력 : {player.TotalHealth}");        
-        Console.WriteLine(player.BonusHealth == 0 ? "" : $"(+{player.BonusHealth})");
+        Console.Write($"체 력 : {player.Health}");
         Console.WriteLine("");
         Console.WriteLine($"Gold : {player.Gold} G\n");
     }
